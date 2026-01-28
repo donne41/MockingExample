@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class BookingSystemTest {
@@ -41,12 +42,38 @@ class BookingSystemTest {
 
     @Test
     void bookRoomInThePastThrowException(){
-        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.now());
-        assertThrows(IllegalArgumentException.class, () -> {
-            bookingSystem.bookRoom("1",
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,01,28,10,00));
+        var exception = assertThrows(IllegalArgumentException.class, () -> {
+            bookingSystem.bookRoom("Room1",
                     timeProvider.getCurrentTime().minusHours(1),
-                    timeProvider.getCurrentTime().plusMinutes(1));
+                    timeProvider.getCurrentTime());
+
         });
+        assertThat(exception).hasMessage("Kan inte boka tid i dåtid");
     }
+
+    @Test
+    void bookRoomEndTimeIsBeforeStartThrowsException(){
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,01,28,10,00));
+        var exception = assertThrows(IllegalArgumentException.class, () -> {
+            bookingSystem.bookRoom("Room1",
+                    timeProvider.getCurrentTime().plusHours(1),
+                    timeProvider.getCurrentTime());
+        });
+        assertThat(exception).hasMessage("Sluttid måste vara efter starttid");
+    }
+
+    @Test
+    void bookRoomNonExistantRoomThrowsException(){
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,01,28,10,00));
+        var exception = assertThrows(IllegalArgumentException.class, () -> {
+            bookingSystem.bookRoom("FalseRoom",
+                    timeProvider.getCurrentTime(),
+                    timeProvider.getCurrentTime().plusHours(1));
+        });
+        assertThat(exception).hasMessage("Rummet existerar inte");
+    }
+
+
 
 }
