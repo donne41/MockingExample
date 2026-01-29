@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,7 +43,7 @@ class BookingSystemTest {
 
     @Test
     void bookRoomInThePastThrowException(){
-        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,01,28,10,00));
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,10,28,10,00));
         var exception = assertThrows(IllegalArgumentException.class, () -> {
             bookingSystem.bookRoom("Room1",
                     timeProvider.getCurrentTime().minusHours(1),
@@ -54,7 +55,7 @@ class BookingSystemTest {
 
     @Test
     void bookRoomEndTimeIsBeforeStartThrowsException(){
-        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,01,28,10,00));
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,10,28,10,00));
         var exception = assertThrows(IllegalArgumentException.class, () -> {
             bookingSystem.bookRoom("Room1",
                     timeProvider.getCurrentTime().plusHours(1),
@@ -65,13 +66,27 @@ class BookingSystemTest {
 
     @Test
     void bookRoomNonExistantRoomThrowsException(){
-        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,01,28,10,00));
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,10,28,10,00));
         var exception = assertThrows(IllegalArgumentException.class, () -> {
             bookingSystem.bookRoom("FalseRoom",
                     timeProvider.getCurrentTime(),
                     timeProvider.getCurrentTime().plusHours(1));
         });
         assertThat(exception).hasMessage("Rummet existerar inte");
+    }
+
+    @Test
+    void bookRoomWithUnavaliableRoomReturnsFalse(){
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,10,28,10,00));
+        LocalDateTime start = timeProvider.getCurrentTime();
+        LocalDateTime end = start.plusHours(1);
+
+        Room mockedRoom = Mockito.mock(Room.class);
+        Mockito.when(mockedRoom.isAvailable(Mockito.any(), Mockito.any())).thenReturn(false);
+        Mockito.when(roomRepository.findById(Mockito.anyString())).thenReturn(Optional.of(mockedRoom));
+
+        boolean result = bookingSystem.bookRoom("room1", start, end);
+        assertThat(result).isFalse();
     }
 
 
