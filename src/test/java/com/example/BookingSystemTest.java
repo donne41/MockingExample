@@ -27,6 +27,8 @@ class BookingSystemTest {
     @InjectMocks
     BookingSystem bookingSystem;
 
+    LocalDateTime testDate = LocalDateTime.of(2027,10,10,10,00);
+
 
     @ParameterizedTest
     @CsvSource({
@@ -43,7 +45,7 @@ class BookingSystemTest {
 
     @Test
     void bookRoomInThePastThrowException(){
-        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,10,28,10,00));
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         var exception = assertThrows(IllegalArgumentException.class, () -> {
             bookingSystem.bookRoom("Room1",
                     timeProvider.getCurrentTime().minusHours(1),
@@ -55,7 +57,7 @@ class BookingSystemTest {
 
     @Test
     void bookRoomEndTimeIsBeforeStartThrowsException(){
-        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,10,28,10,00));
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         var exception = assertThrows(IllegalArgumentException.class, () -> {
             bookingSystem.bookRoom("Room1",
                     timeProvider.getCurrentTime().plusHours(1),
@@ -66,7 +68,7 @@ class BookingSystemTest {
 
     @Test
     void bookRoomNonExistantRoomThrowsException(){
-        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,10,28,10,00));
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         var exception = assertThrows(IllegalArgumentException.class, () -> {
             bookingSystem.bookRoom("FalseRoom",
                     timeProvider.getCurrentTime(),
@@ -77,7 +79,7 @@ class BookingSystemTest {
 
     @Test
     void bookRoomWithUnavaliableRoomReturnsFalse(){
-        Mockito.when(timeProvider.getCurrentTime()).thenReturn(LocalDateTime.of(2026,10,28,10,00));
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         LocalDateTime start = timeProvider.getCurrentTime();
         LocalDateTime end = start.plusHours(1);
 
@@ -88,6 +90,21 @@ class BookingSystemTest {
         boolean result = bookingSystem.bookRoom("room1", start, end);
         assertThat(result).isFalse();
     }
+
+    @Test
+    void bookRoomValidInputReturnsTrue(){
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
+        LocalDateTime start = timeProvider.getCurrentTime();
+        LocalDateTime end = start.plusHours(1);
+        String roomId = "Room1";
+        Room room = new Room(roomId, "1");
+        Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+
+        boolean result = bookingSystem.bookRoom(roomId, start, end);
+        assertThat(result).isTrue();
+    }
+
+
 
 
 
