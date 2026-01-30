@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -103,6 +104,43 @@ class BookingSystemTest {
         boolean result = bookingSystem.bookRoom(roomId, start, end);
         assertThat(result).isTrue();
     }
+
+    @Test
+    void bookRoomShouldCallForSendBookingConfirmation(){
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
+        LocalDateTime start = timeProvider.getCurrentTime();
+        LocalDateTime end = start.plusHours(1);
+        Room room = new Room("room", "1");
+        //Mockito.when(room.isAvailable(start, end)).thenReturn(true);
+        Mockito.when(roomRepository.findById(Mockito.anyString())).thenReturn(Optional.of(room));
+        bookingSystem.bookRoom("room", start, end);
+        try {
+            Mockito.verify(notificationService,
+                            Mockito.times(1))
+                    .sendBookingConfirmation(Mockito.any(Booking.class));
+
+        }catch (NotificationException e){
+            System.out.println("Notify error");
+        }
+
+    }
+
+    @Test
+    void bookRoomShouldReturnTrueEvenWhenNotificationExceptionIsThrown() throws NotificationException{
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
+        LocalDateTime start = timeProvider.getCurrentTime();
+        LocalDateTime end = start.plusHours(1);
+        Room room = new Room("room", "1");
+        Mockito.when(roomRepository.findById(Mockito.anyString())).thenReturn(Optional.of(room));
+        Mockito.doThrow(new NotificationException("simulated error"))
+                .when(notificationService)
+                .sendBookingConfirmation(Mockito.any(Booking.class));
+
+        boolean result = bookingSystem.bookRoom("room", start, end);
+        assertThat(result).isTrue();
+    }
+
+
 
 
 
