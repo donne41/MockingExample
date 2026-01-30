@@ -11,11 +11,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+
 @ExtendWith(MockitoExtension.class)
 class BookingSystemTest {
     @Mock
@@ -28,7 +30,7 @@ class BookingSystemTest {
     @InjectMocks
     BookingSystem bookingSystem;
 
-    LocalDateTime testDate = LocalDateTime.of(2027,10,10,10,00);
+    LocalDateTime testDate = LocalDateTime.of(2027, 10, 10, 10, 00);
 
 
     @ParameterizedTest
@@ -38,14 +40,14 @@ class BookingSystemTest {
             "Room1, ,2026-01-28T12:00", //Start time null
             "Room1, 2026-01-28T12:00, " //end time null
     })
-    void bookRoomThrowExeptionWithNullInput(String roomId, LocalDateTime start, LocalDateTime end){
+    void bookRoomThrowExeptionWithNullInput(String roomId, LocalDateTime start, LocalDateTime end) {
         assertThrows(IllegalArgumentException.class, () -> {
             bookingSystem.bookRoom(roomId, start, end);
         });
     }
 
     @Test
-    void bookRoomInThePastThrowException(){
+    void bookRoomInThePastThrowException() {
         Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         var exception = assertThrows(IllegalArgumentException.class, () -> {
             bookingSystem.bookRoom("Room1",
@@ -57,7 +59,7 @@ class BookingSystemTest {
     }
 
     @Test
-    void bookRoomEndTimeIsBeforeStartThrowsException(){
+    void bookRoomEndTimeIsBeforeStartThrowsException() {
         Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         var exception = assertThrows(IllegalArgumentException.class, () -> {
             bookingSystem.bookRoom("Room1",
@@ -68,7 +70,7 @@ class BookingSystemTest {
     }
 
     @Test
-    void bookRoomNonExistantRoomThrowsException(){
+    void bookRoomNonExistantRoomThrowsException() {
         Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         var exception = assertThrows(IllegalArgumentException.class, () -> {
             bookingSystem.bookRoom("FalseRoom",
@@ -79,7 +81,7 @@ class BookingSystemTest {
     }
 
     @Test
-    void bookRoomWithUnavaliableRoomReturnsFalse(){
+    void bookRoomWithUnavaliableRoomReturnsFalse() {
         Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         LocalDateTime start = timeProvider.getCurrentTime();
         LocalDateTime end = start.plusHours(1);
@@ -93,7 +95,7 @@ class BookingSystemTest {
     }
 
     @Test
-    void bookRoomValidInputReturnsTrue(){
+    void bookRoomValidInputReturnsTrue() {
         Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         LocalDateTime start = timeProvider.getCurrentTime();
         LocalDateTime end = start.plusHours(1);
@@ -106,7 +108,7 @@ class BookingSystemTest {
     }
 
     @Test
-    void bookRoomShouldCallForSendBookingConfirmation(){
+    void bookRoomShouldCallForSendBookingConfirmation() {
         Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         LocalDateTime start = timeProvider.getCurrentTime();
         LocalDateTime end = start.plusHours(1);
@@ -119,14 +121,14 @@ class BookingSystemTest {
                             Mockito.times(1))
                     .sendBookingConfirmation(Mockito.any(Booking.class));
 
-        }catch (NotificationException e){
+        } catch (NotificationException e) {
             System.out.println("Notify error");
         }
 
     }
 
     @Test
-    void bookRoomShouldReturnTrueEvenWhenNotificationExceptionIsThrown() throws NotificationException{
+    void bookRoomShouldReturnTrueEvenWhenNotificationExceptionIsThrown() throws NotificationException {
         Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         LocalDateTime start = timeProvider.getCurrentTime();
         LocalDateTime end = start.plusHours(1);
@@ -147,13 +149,24 @@ class BookingSystemTest {
             ",2020-10-10T10:00",    //null startTime
             "2020-10-10T11:00, 2020-10-10T10:00"   //end before start
     })
-    void getAvaliableRoomsShouldThrowExceptionWithInvalidInput(LocalDateTime start, LocalDateTime end){
+    void getAvaliableRoomsShouldThrowExceptionWithInvalidInput(LocalDateTime start, LocalDateTime end) {
         assertThrows(IllegalArgumentException.class, () -> {
             bookingSystem.getAvailableRooms(start, end);
         });
     }
 
+    @Test
+    void getAvailableRoomsShouldReturnListOfAvailableRooms() {
+        Room availableRoom = new Room("room", "1");
+        Room occupiedRoom = new Room("room2", "2");
+        occupiedRoom.addBooking(new Booking("test", "room2", testDate.plusHours(0), testDate.plusHours(1)));
+        Mockito.when(roomRepository.findAll()).thenReturn(List.of(availableRoom, occupiedRoom));
+        var result = bookingSystem.getAvailableRooms(testDate, testDate.plusHours(1));
 
+        assertThat(result).isNotEmpty();
+        assertThat(result).contains(availableRoom);
+        assertThat(result).doesNotContain(occupiedRoom);
+    }
 
 
 }
