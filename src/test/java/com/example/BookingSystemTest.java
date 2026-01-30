@@ -108,7 +108,7 @@ class BookingSystemTest {
     }
 
     @Test
-    void bookRoomShouldCallForSendBookingConfirmation() {
+    void bookRoomShouldCallForSendBookingConfirmation() throws NotificationException{
         Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
         LocalDateTime start = timeProvider.getCurrentTime();
         LocalDateTime end = start.plusHours(1);
@@ -116,14 +116,10 @@ class BookingSystemTest {
         //Mockito.when(room.isAvailable(start, end)).thenReturn(true);
         Mockito.when(roomRepository.findById(Mockito.anyString())).thenReturn(Optional.of(room));
         bookingSystem.bookRoom("room", start, end);
-        try {
-            Mockito.verify(notificationService,
-                            Mockito.times(1))
-                    .sendBookingConfirmation(Mockito.any(Booking.class));
 
-        } catch (NotificationException e) {
-            System.out.println("Notify error");
-        }
+        Mockito.verify(notificationService,
+                        Mockito.times(1))
+                .sendBookingConfirmation(Mockito.any(Booking.class));
 
     }
 
@@ -193,6 +189,26 @@ class BookingSystemTest {
         assertThrows(IllegalStateException.class, () -> {
             bookingSystem.cancelBooking("bookingID");
         });
+    }
+
+    @Test
+    void cancelBookingShouldReturnTrueWhenBookingIsCancelled(){
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
+        LocalDateTime start = timeProvider.getCurrentTime().plusHours(1);
+        LocalDateTime end = start.plusHours(2);
+        Room room = new Room("room", "1");
+        room.addBooking(new Booking("bookingID", "room", start, end));
+        Mockito.when(roomRepository.findAll()).thenReturn(List.of(room));
+
+        var result = bookingSystem.cancelBooking("bookingID");
+
+        Mockito.verify(
+                roomRepository,
+                Mockito.times(1))
+                .save(room);
+        assertThat(room.hasBooking("bookingID")).isFalse();
+        assertThat(result).isTrue();
+
     }
 
 
