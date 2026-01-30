@@ -168,5 +168,33 @@ class BookingSystemTest {
         assertThat(result).doesNotContain(occupiedRoom);
     }
 
+    @Test
+    void cancelBookingShouldThrowExceptionWithNullInput(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            bookingSystem.cancelBooking(null);
+        });
+    }
+
+    @Test
+    void cancelBookingShouldReturnfalseWhenRoomWithBookingIsEmpty(){
+    var result = bookingSystem.cancelBooking("fakeId");
+    assertThat(result).isFalse();
+    }
+
+    @Test
+    void cancelBookingShoudThrowExceptionWhenTryingToCancelAStartedBooking(){
+        Mockito.when(timeProvider.getCurrentTime()).thenReturn(testDate);
+        LocalDateTime start = timeProvider.getCurrentTime().minusHours(1);
+        LocalDateTime end = start.plusHours(1);
+        Room room = new Room("room", "1");
+        room.addBooking(new Booking("bookingID", "room", start, end));
+        Mockito.when(roomRepository.findAll()).thenReturn(List.of(room));
+
+        assertThrows(IllegalStateException.class, () -> {
+            bookingSystem.cancelBooking("bookingID");
+        });
+    }
+
+
 
 }
