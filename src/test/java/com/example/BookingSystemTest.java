@@ -140,8 +140,18 @@ class BookingSystemTest {
         assertThat(result).isTrue();
     }
 
-
-
+    @ParameterizedTest
+    @CsvSource({
+            ",",                    //null input
+            "2020-10-10T10:00,",    //null endTime
+            ",2020-10-10T10:00",    //null startTime
+            "2020-10-10T11:00, 2020-10-10T10:00"   //end before start
+    })
+    void getAvaliableRoomsShouldThrowExceptionWithInvalidInput(LocalDateTime start, LocalDateTime end){
+        assertThrows(IllegalArgumentException.class, () -> {
+            bookingSystem.getAvailableRooms(start, end);
+        });
+    }
 
 
 
