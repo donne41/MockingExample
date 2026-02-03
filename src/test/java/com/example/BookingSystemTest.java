@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class BookingSystemTest {
@@ -24,11 +24,13 @@ class BookingSystemTest {
     RoomRepository roomRepository;
     @Mock
     NotificationService notificationService;
+    @Mock
+    Room roomNeeded;
 
     @InjectMocks
     BookingSystem bookingSystem;
 
-    LocalDateTime testDate = LocalDateTime.of(2027, 10, 10, 10, 00);
+    LocalDateTime testDate = LocalDateTime.of(2020, 10, 10, 10, 00);
 
 
     @ParameterizedTest
@@ -102,6 +104,13 @@ class BookingSystemTest {
         Mockito.when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
 
         boolean result = bookingSystem.bookRoom(roomId, start, end);
+
+        Mockito.verify(roomRepository,
+                        Mockito.times(1))
+                .save(room);
+
+        assertThat(room.isAvailable(start, end)).as("Booking availability should return false" +
+                " when input the same start and end time to the room").isFalse();
         assertThat(result).isTrue();
     }
 
@@ -197,6 +206,7 @@ class BookingSystemTest {
         Room room = new Room("room", "1");
         room.addBooking(new Booking("bookingID", "room", start, end));
         Mockito.when(roomRepository.findAll()).thenReturn(List.of(room));
+        assertThat(room.hasBooking("bookingID")).as("hasBooking() should return true before cancelBooking() is called").isTrue();
 
         var result = bookingSystem.cancelBooking("bookingID");
 
@@ -208,7 +218,7 @@ class BookingSystemTest {
                         notificationService,
                         Mockito.times(1))
                 .sendCancellationConfirmation(Mockito.any(Booking.class));
-        assertThat(room.hasBooking("bookingID")).isFalse();
+        assertThat(room.hasBooking("bookingID")).as("hasBooking() should return false after cancelBooking() is called").isFalse();
         assertThat(result).isTrue();
 
     }
