@@ -88,7 +88,8 @@ public class ShoppingCartTest {
     @ParameterizedTest
     @CsvSource({
             "milk, ,",
-            "milk, -10.0"
+            "milk, -10.0",
+            "milk, 0"
     })
     void addingProductWithInvalidPriceShouldThrowException(String name, BigDecimal price) {
         ShoppingCart cart = new ShoppingCart();
@@ -98,7 +99,7 @@ public class ShoppingCartTest {
                     cart.addProduct(name, price);
                 });
 
-        assertThat(exception).hasMessage("Produktpriset kan inte vara null eller negativt");
+        assertThat(exception).hasMessage("Produktpriset kan inte vara null, gratis eller negativt");
     }
 
     @Test
