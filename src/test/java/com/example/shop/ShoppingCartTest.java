@@ -45,7 +45,7 @@ public class ShoppingCartTest {
 
         var result = cart.getSumPriceOfAllProducts();
 
-        assertThat(result).isEqualTo(BigDecimal.valueOf(20));
+        assertThat(result).isEqualTo(BigDecimal.valueOf(20).setScale(2));
     }
 
     @Test
