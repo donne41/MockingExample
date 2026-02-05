@@ -7,6 +7,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class ShoppingCartTest {
@@ -67,6 +68,18 @@ public class ShoppingCartTest {
         var result = cart.getAmountOfProductsInCart();
 
         assertThat(result).isEqualTo(3);
+    }
+
+    @Test
+    void addingProductWithNoNameShouldThrowException() {
+        ShoppingCart cart = new ShoppingCart();
+
+        var exception = assertThrows(IllegalArgumentException.class,
+                () -> {
+                    cart.addProduct(" ", BigDecimal.TEN);
+                });
+
+        assertThat(exception).hasMessage("Produktnamnet kan inte vara tomt");
     }
 
 }

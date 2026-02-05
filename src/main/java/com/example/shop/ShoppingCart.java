@@ -11,7 +11,12 @@ public class ShoppingCart {
 
 
     public void addProduct(String productName, BigDecimal price) {
-        Product newProd = new Product(productName.toUpperCase(), price);
+        if (productName.trim().isEmpty())
+            throw new IllegalArgumentException("Produktnamnet kan inte vara tomt");
+        if (price.equals(null) || price.doubleValue() < 0)
+            throw new IllegalArgumentException("Produktpriset kan inte vara null eller negativt");
+        String name = productName.trim().toUpperCase();
+        Product newProd = new Product(name, price);
         basket.merge(newProd, 1, Integer::sum);
     }
 
