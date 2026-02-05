@@ -18,4 +18,8 @@ public class Product {
     public String getProductName() {
         return productName;
     }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 }

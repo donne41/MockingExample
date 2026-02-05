@@ -45,5 +45,16 @@ public class ShoppingCartTest {
         assertThat(result).isEqualTo(BigDecimal.valueOf(30.0));
     }
 
+    @Test
+    void applyDiscountShouldReturnSumOfNewPrice() {
+        ShoppingCart cart = new ShoppingCart();
+        cart.addProduct("milk", BigDecimal.TEN);
+        cart.addProduct("bread", BigDecimal.valueOf(20.0));
+        cart.applyDiscount(30.0);
+
+        var result = cart.getSumPriceOfAllProducts();
+
+        assertThat(result).isEqualTo(BigDecimal.valueOf(21.0));
+    }
 
 }

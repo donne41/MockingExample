@@ -31,4 +31,12 @@ public class ShoppingCart {
                 .sum());
 
     }
+
+    public void applyDiscount(double discount) {
+        double priceChange = (100 - discount) * 0.01;
+        getProducts().stream().forEach(p ->
+                p.setPrice(BigDecimal.valueOf(p.getPrice().doubleValue() * priceChange)));
+    }
+
+
 }
