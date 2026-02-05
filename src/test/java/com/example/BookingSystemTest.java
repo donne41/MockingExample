@@ -24,8 +24,6 @@ class BookingSystemTest {
     RoomRepository roomRepository;
     @Mock
     NotificationService notificationService;
-    @Mock
-    Room roomNeeded;
 
     @InjectMocks
     BookingSystem bookingSystem;
@@ -86,7 +84,7 @@ class BookingSystemTest {
         LocalDateTime start = timeProvider.getCurrentTime();
         LocalDateTime end = start.plusHours(1);
 
-        Room mockedRoom = Mockito.mock(Room.class);
+        Room mockedRoom = new Room("room1", "1");
         Mockito.when(mockedRoom.isAvailable(Mockito.any(), Mockito.any())).thenReturn(false);
         Mockito.when(roomRepository.findById(Mockito.anyString())).thenReturn(Optional.of(mockedRoom));
 
