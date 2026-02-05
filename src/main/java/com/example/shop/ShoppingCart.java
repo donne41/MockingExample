@@ -37,7 +37,7 @@ public class ShoppingCart {
     }
 
     public Map<Product, Integer> getProducts() {
-        return basket;
+        return Map.copyOf(basket);
     }
 
 
