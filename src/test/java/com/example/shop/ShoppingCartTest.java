@@ -1,5 +1,6 @@
 package com.example.shop;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -110,5 +111,19 @@ public class ShoppingCartTest {
                     cart.removeProduct(" ");
                 });
         assertThat(exception).hasMessage("Produktnamnet kan inte vara tomt");
+    }
+
+    @Test
+    @DisplayName("Removing a product should decrease its amount by one, unless last one")
+    void removingProductShouldDecreaseCountByOne() {
+        ShoppingCart cart = new ShoppingCart();
+        cart.addProduct("milk", BigDecimal.TEN);
+        cart.addProduct("milk", BigDecimal.TEN);
+        cart.addProduct("milk", BigDecimal.TEN);
+        cart.removeProduct("milk");
+
+        var productCount = cart.getAmountOfProductsInCart();
+
+        assertThat(productCount).isEqualTo(2);
     }
 }

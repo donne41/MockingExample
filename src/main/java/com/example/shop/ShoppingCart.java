@@ -28,7 +28,11 @@ public class ShoppingCart {
                         product.getProductName().equals(name))
                 .findFirst();
         if (prod.isPresent()) {
-            basket.remove(prod.get());
+            if (basket.get(prod.get()) == 1) {
+                basket.remove(prod.get());
+            } else {
+                basket.merge(prod.get(), -1, Integer::sum);
+            }
         }
     }
 
