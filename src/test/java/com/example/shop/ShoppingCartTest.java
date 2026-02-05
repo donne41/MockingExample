@@ -126,4 +126,17 @@ public class ShoppingCartTest {
 
         assertThat(productCount).isEqualTo(2);
     }
+
+    @ParameterizedTest
+    @CsvSource({
+            "100", "110", "10000", "-1", "-1000", "-0.000001", "100.000001"
+    })
+    void discountShouldNotMakeProductFreeOrNegative(double discount) {
+        ShoppingCart cart = new ShoppingCart();
+
+        var exception = assertThrows(IllegalArgumentException.class,
+                () -> cart.applyDiscount(discount));
+
+        assertThat(exception).hasMessage("Rabatt kan inte göra produkterna gratis eller negativt pris");
+    }
 }

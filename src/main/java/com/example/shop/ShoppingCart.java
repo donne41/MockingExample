@@ -48,6 +48,8 @@ public class ShoppingCart {
     }
 
     public void applyDiscount(double discount) {
+        if (discount < 0 || discount >= 100.000)
+            throw new IllegalArgumentException("Rabatt kan inte göra produkterna gratis eller negativt pris");
         double priceChange = (100 - discount) * 0.01;
         basket.keySet().stream().forEach(p ->
                 p.setPrice(BigDecimal.valueOf(p.getPrice().doubleValue() * priceChange)));
