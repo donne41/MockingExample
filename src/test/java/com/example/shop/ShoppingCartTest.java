@@ -99,4 +99,16 @@ public class ShoppingCartTest {
 
         assertThat(exception).hasMessage("Produktpriset kan inte vara null eller negativt");
     }
+
+    @Test
+    void removingProductWithInvalidNameShouldThrowException() {
+        ShoppingCart cart = new ShoppingCart();
+        cart.addProduct("milk", BigDecimal.TEN);
+
+        var exception = assertThrows(IllegalArgumentException.class,
+                () -> {
+                    cart.removeProduct(" ");
+                });
+        assertThat(exception).hasMessage("Produktnamnet kan inte vara tomt");
+    }
 }

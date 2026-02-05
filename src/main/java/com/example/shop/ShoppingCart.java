@@ -21,8 +21,11 @@ public class ShoppingCart {
     }
 
     public void removeProduct(String productName) {
+        if (productName.trim().isEmpty())
+            throw new IllegalArgumentException("Produktnamnet kan inte vara tomt");
+        String name = productName.trim().toUpperCase();
         var prod = basket.keySet().stream().filter(product ->
-                        product.getProductName().equals(productName))
+                        product.getProductName().equals(name))
                 .findFirst();
         if (prod.isPresent()) {
             basket.remove(prod.get());
