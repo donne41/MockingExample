@@ -1,41 +1,50 @@
 package com.example.shop;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShoppingCart {
 
-    ArrayList<Product> basket = new ArrayList<>();
+    Map<Product, Integer> basket = new HashMap<>();
 
 
     public void addProduct(String productName, BigDecimal price) {
-        basket.add(new Product(productName, price));
+        Product newProd = new Product(productName.toUpperCase(), price);
+        basket.merge(newProd, 1, Integer::sum);
     }
 
     public void removeProduct(String productName) {
-        var list = getProducts();
-        list.stream().filter(p ->
-                        p.getProductName().matches(productName))
-                .findFirst()
-                .ifPresent(p -> list.remove(p));
+        var prod = basket.keySet().stream().filter(product ->
+                        product.getProductName().equals(productName))
+                .findFirst();
+        if (prod.isPresent()) {
+            basket.remove(prod.get());
+        }
     }
 
-    public ArrayList<Product> getProducts() {
+    public Map<Product, Integer> getProducts() {
         return basket;
     }
 
-    public BigDecimal getSumPriceOfAllProducts() {
-        var list = getProducts();
-        return BigDecimal.valueOf(list.stream().mapToDouble(
-                        p -> p.getPrice().doubleValue())
-                .sum());
 
+    public BigDecimal getSumPriceOfAllProducts() {
+        return BigDecimal.valueOf(basket.entrySet().stream().mapToDouble(
+                        p -> p.getKey().getPrice().doubleValue() * p.getValue())
+                .sum()).setScale(2, RoundingMode.HALF_UP);
     }
 
     public void applyDiscount(double discount) {
         double priceChange = (100 - discount) * 0.01;
-        getProducts().stream().forEach(p ->
+        basket.keySet().stream().forEach(p ->
                 p.setPrice(BigDecimal.valueOf(p.getPrice().doubleValue() * priceChange)));
+    }
+
+    public int getAmountOfProductsInCart() {
+        return basket.entrySet().stream().mapToInt(
+                        prod -> prod.getValue())
+                .sum();
     }
 
 

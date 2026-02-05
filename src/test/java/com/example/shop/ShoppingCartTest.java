@@ -42,19 +42,31 @@ public class ShoppingCartTest {
 
         var result = cart.getSumPriceOfAllProducts();
 
-        assertThat(result).isEqualTo(BigDecimal.valueOf(30.0));
+        assertThat(result).isEqualTo(BigDecimal.valueOf(20));
     }
 
     @Test
     void applyDiscountShouldReturnSumOfNewPrice() {
         ShoppingCart cart = new ShoppingCart();
         cart.addProduct("milk", BigDecimal.TEN);
-        cart.addProduct("bread", BigDecimal.valueOf(20.0));
+        cart.addProduct("bread", BigDecimal.valueOf(20));
         cart.applyDiscount(30.0);
 
         var result = cart.getSumPriceOfAllProducts();
 
-        assertThat(result).isEqualTo(BigDecimal.valueOf(21.0));
+        assertThat(result).isEqualTo(BigDecimal.valueOf(21).setScale(2));
+    }
+
+    @Test
+    void addAnotherOfTheSameProductShouldIncreaseIntegerAmount() {
+        ShoppingCart cart = new ShoppingCart();
+        cart.addProduct("milk", BigDecimal.TEN);
+        cart.addProduct("milk", BigDecimal.TEN);
+        cart.addProduct("bread", BigDecimal.valueOf(20));
+
+        var result = cart.getAmountOfProductsInCart();
+
+        assertThat(result).isEqualTo(3);
     }
 
 }
