@@ -116,7 +116,12 @@ public class ShoppingCartTest {
                 () -> {
                     cart.removeProduct(" ");
                 });
+        var exception2 = assertThrows(IllegalArgumentException.class,
+                () -> {
+                    cart.removeProduct(null);
+                });
         assertThat(exception).hasMessage("Produktnamnet kan inte vara tomt");
+        assertThat(exception2).hasMessage("Produktnamnet kan inte vara tomt");
     }
 
     @Test
