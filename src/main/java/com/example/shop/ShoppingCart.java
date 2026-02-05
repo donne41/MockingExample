@@ -42,17 +42,17 @@ public class ShoppingCart {
 
 
     public BigDecimal getSumPriceOfAllProducts() {
-        return BigDecimal.valueOf(basket.entrySet().stream().mapToDouble(
-                        p -> p.getKey().getPrice().doubleValue() * p.getValue())
-                .sum()).setScale(2, RoundingMode.HALF_UP);
+        return basket.entrySet().stream().map(
+                        p -> p.getKey().getPrice().multiply(BigDecimal.valueOf(p.getValue())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
     }
 
     public void applyDiscount(double discount) {
         if (discount < 0 || discount >= 100.000)
             throw new IllegalArgumentException("Rabatt kan inte göra produkterna gratis eller negativt pris");
-        double priceChange = (100 - discount) * 0.01;
+        BigDecimal priceChange = BigDecimal.valueOf((100 - discount) * 0.01);
         basket.keySet().stream().forEach(p ->
-                p.setPrice(BigDecimal.valueOf(p.getPrice().doubleValue() * priceChange)));
+                p.setPrice(p.getPrice().multiply(priceChange)));
     }
 
     public int getAmountOfProductsInCart() {
