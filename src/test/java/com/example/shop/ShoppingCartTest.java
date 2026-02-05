@@ -2,6 +2,8 @@ package com.example.shop;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -82,4 +84,19 @@ public class ShoppingCartTest {
         assertThat(exception).hasMessage("Produktnamnet kan inte vara tomt");
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "milk, ,",
+            "milk, -10.0"
+    })
+    void addingProductWithInvalidPriceShouldThrowException(String name, BigDecimal price) {
+        ShoppingCart cart = new ShoppingCart();
+
+        var exception = assertThrows(IllegalArgumentException.class,
+                () -> {
+                    cart.addProduct(name, price);
+                });
+
+        assertThat(exception).hasMessage("Produktpriset kan inte vara null eller negativt");
+    }
 }
