@@ -16,32 +16,34 @@ public class ShoppingCartTest {
     @Test
     void addProductShouldBeSavedToList() {
         ShoppingCart cart = new ShoppingCart();
-
         cart.addProduct("milk", BigDecimal.TEN);
 
         var result = cart.getProducts();
+
         assertThat(result.size()).isEqualTo(1);
     }
 
     @Test
     void removeProductShouldDeleteProductFromList() {
         ShoppingCart cart = new ShoppingCart();
-
         cart.addProduct("milk", BigDecimal.TEN);
         cart.removeProduct("milk");
 
         var result = cart.getProducts();
+
         assertThat(result.size()).isZero();
     }
 
     @Test
     void getTotalPriceShouldReturnSumOfProductPrices() {
         ShoppingCart cart = new ShoppingCart();
+        cart.addProduct("milk", BigDecimal.TEN);
+        cart.addProduct("milk", BigDecimal.TEN);
 
-        cart.addProduct("milk", BigDecimal.TEN);
-        cart.addProduct("milk", BigDecimal.TEN);
         var result = cart.getSumPriceOfAllProducts();
 
-        assertThat(result).isEqualTo(BigDecimal.valueOf(20.0));
+        assertThat(result).isEqualTo(BigDecimal.valueOf(30.0));
     }
+
+
 }
