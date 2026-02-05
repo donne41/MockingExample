@@ -81,8 +81,13 @@ public class ShoppingCartTest {
                 () -> {
                     cart.addProduct(" ", BigDecimal.TEN);
                 });
+        var exception2 = assertThrows(IllegalArgumentException.class,
+                () -> {
+                    cart.addProduct(null, BigDecimal.TEN);
+                });
 
         assertThat(exception).hasMessage("Produktnamnet kan inte vara tomt");
+        assertThat(exception2).hasMessage("Produktnamnet kan inte vara tomt");
     }
 
     @ParameterizedTest
