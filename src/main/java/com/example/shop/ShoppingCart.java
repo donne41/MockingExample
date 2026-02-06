@@ -8,6 +8,7 @@ import java.util.Map;
 public class ShoppingCart {
 
     Map<Product, Integer> basket = new HashMap<>();
+    BigDecimal priceDiscount = BigDecimal.ONE;
 
 
     public void addProduct(String productName, BigDecimal price) {
@@ -40,19 +41,21 @@ public class ShoppingCart {
         return Map.copyOf(basket);
     }
 
-
     public BigDecimal getSumPriceOfAllProducts() {
-        return basket.entrySet().stream().map(
-                        p -> p.getKey().getPrice().multiply(BigDecimal.valueOf(p.getValue())))
+        BigDecimal subTotal = basket.entrySet().stream().map(
+                        p -> p.getKey()
+                                .getPrice()
+                                .multiply(BigDecimal.valueOf(p.getValue())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
+        return subTotal.multiply(priceDiscount).setScale(2, RoundingMode.HALF_UP);
     }
 
     public void applyDiscount(double discount) {
         if (discount < 0 || discount >= 100.000)
             throw new IllegalArgumentException("Rabatt kan inte göra produkterna gratis eller negativt pris");
-        BigDecimal priceChange = BigDecimal.valueOf((100 - discount) * 0.01);
-        basket.keySet().stream().forEach(p ->
-                p.setPrice(p.getPrice().multiply(priceChange)));
+        BigDecimal tempDiscount = BigDecimal.valueOf((100 - discount) * 0.01);
+        if (tempDiscount.compareTo(priceDiscount) < 0)
+            priceDiscount = tempDiscount;
     }
 
     public int getAmountOfProductsInCart() {

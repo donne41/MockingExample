@@ -50,11 +50,13 @@ public class ShoppingCartTest {
     }
 
     @Test
+    @DisplayName("Apply discount should return sum of discounted price with the highest discount applied")
     void applyDiscountShouldReturnSumOfNewPrice() {
         ShoppingCart cart = new ShoppingCart();
         cart.addProduct("milk", BigDecimal.TEN);
         cart.addProduct("bread", BigDecimal.valueOf(20));
         cart.applyDiscount(30.0);
+        cart.applyDiscount(20.0);
 
         var result = cart.getSumPriceOfAllProducts();
 
