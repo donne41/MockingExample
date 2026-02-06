@@ -87,9 +87,11 @@
                 <configuration>
                     <targetClasses>
                         <param>com.example.BookingSystem*</param>
+                        <param>com.example.shop.ShoppingCart*</param>
                     </targetClasses>
                     <targetTests>
                         <param>com.example.BookingSystemTest*</param>
+                        <param>com.example.shop.ShoppingCart*</param>
                     </targetTests>
                 </configuration>
                 <dependencies>
