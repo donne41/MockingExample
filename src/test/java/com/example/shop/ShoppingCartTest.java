@@ -142,7 +142,7 @@ public class ShoppingCartTest {
 
     @ParameterizedTest
     @CsvSource({
-            "100", "110", "10000", "-1", "-1000", "-0.000001", "100.000001"
+            "100", "110", "10000", "-1", "-1000", "-0.000001", "100.000001", "0.0"
     })
     void discountShouldNotMakeProductFreeOrNegative(double discount) {
         ShoppingCart cart = new ShoppingCart();
