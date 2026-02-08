@@ -20,9 +20,8 @@ class PaymentProcessorTest {
     DatabaseRepo databaseRepo;
     @Mock
     PaymentResponse paymentResponse;
-
     @InjectMocks
-    PaymentProcessor processor = new PaymentProcessor(payment, databaseRepo, emailService);
+    PaymentProcessor processor;
 
 
     @Test
