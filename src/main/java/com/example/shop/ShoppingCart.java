@@ -51,7 +51,7 @@ public class ShoppingCart {
     }
 
     public void applyDiscount(double discount) {
-        if (discount <= 0 || discount >= 100.0)
+        if (discount < 0 || discount >= 100.0)
             throw new IllegalArgumentException("Rabatt kan inte göra produkterna gratis eller negativt pris");
         BigDecimal tempDiscount = BigDecimal.valueOf((100 - discount) * 0.01);
         if (tempDiscount.compareTo(priceDiscount) < 0)

@@ -88,10 +88,12 @@
                     <targetClasses>
                         <param>com.example.BookingSystem*</param>
                         <param>com.example.shop.ShoppingCart*</param>
+                        <param>com.example.payment.PaymentProcessor*</param>
                     </targetClasses>
                     <targetTests>
                         <param>com.example.BookingSystemTest*</param>
                         <param>com.example.shop.ShoppingCart*</param>
+                        <param>com.example.payment.PaymentProcessorTest*</param>
                     </targetTests>
                 </configuration>
                 <dependencies>
