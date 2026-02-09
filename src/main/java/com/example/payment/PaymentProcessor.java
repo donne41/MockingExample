@@ -1,5 +1,6 @@
 package com.example.payment;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -18,15 +19,14 @@ public class PaymentProcessor {
     }
 
 
-    public boolean processPayment(double amount) {
+    public boolean processPayment(BigDecimal amount) {
         // Anropar extern betaltjänst direkt med statisk API-nyckel
         PaymentResponse response = paymentApi.charge(API_KEY, amount);
 
         // Skriver till databas direkt
         if (response.isSuccess()) {
-            try {
-                PreparedStatement sql = databaseRepo.prepareStatement("INSERT INTO payments (amount, status) VALUES ( ?, 'SUCCESS')");
-                sql.setDouble(1, amount);
+            try (PreparedStatement sql = databaseRepo.prepareStatement("INSERT INTO payments (amount, status) VALUES ( ?, 'SUCCESS')")) {
+                sql.setBigDecimal(1, amount);
                 databaseRepo
                         .executeUpdate(sql);
             } catch (SQLException e) {

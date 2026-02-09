@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -28,15 +29,17 @@ class PaymentProcessorTest {
     PreparedStatement mockedStatement;
     @InjectMocks
     PaymentProcessor processor;
+    String ApiKey = "sk_test_123456";
+    BigDecimal testValue = BigDecimal.valueOf(200);
 
 
     @Test
     void whenPaymentApiReturnsTrueSoShouldProcessPayment() throws SQLException {
         Mockito.when(paymentResponse.isSuccess()).thenReturn(true);
-        Mockito.when(payment.charge(Mockito.anyString(), Mockito.anyDouble())).thenReturn(paymentResponse);
+        Mockito.when(payment.charge(ApiKey, testValue)).thenReturn(paymentResponse);
         Mockito.when(databaseRepo.prepareStatement(Mockito.anyString())).thenReturn(mockedStatement);
 
-        var result = processor.processPayment(200);
+        var result = processor.processPayment(testValue);
 
         assertThat(result).isTrue();
     }
@@ -44,11 +47,11 @@ class PaymentProcessorTest {
     @Test
     void whenPaymentIsTrueDatabaseShouldGetQuery() throws SQLException {
         Mockito.when(paymentResponse.isSuccess()).thenReturn(true);
-        Mockito.when(payment.charge(Mockito.anyString(), Mockito.anyDouble())).thenReturn(paymentResponse);
+        Mockito.when(payment.charge(ApiKey, testValue)).thenReturn(paymentResponse);
         Mockito.when(databaseRepo.prepareStatement(Mockito.anyString())).thenReturn(mockedStatement);
 
 
-        processor.processPayment(200);
+        processor.processPayment(testValue);
         Mockito.verify(databaseRepo,
                         Mockito.times(1))
                 .executeUpdate(Mockito.any(PreparedStatement.class));
@@ -57,35 +60,35 @@ class PaymentProcessorTest {
     @Test
     void whenPaymentIsTrueConfirmationShouldBeCalled() throws SQLException {
         Mockito.when(paymentResponse.isSuccess()).thenReturn(true);
-        Mockito.when(payment.charge(Mockito.anyString(), Mockito.anyDouble())).thenReturn(paymentResponse);
+        Mockito.when(payment.charge(ApiKey, testValue)).thenReturn(paymentResponse);
         Mockito.when(databaseRepo.prepareStatement(Mockito.anyString())).thenReturn(mockedStatement);
 
-        processor.processPayment(200);
+        processor.processPayment(testValue);
         Mockito.verify(emailService,
                         Mockito.times(1))
-                .sendPaymentConfirmation("user@example.com", 200);
+                .sendPaymentConfirmation("user@example.com", testValue);
     }
 
     @Test
     void preparedstatementGoesWrongInProcessPayment() throws SQLException {
         Mockito.when(paymentResponse.isSuccess()).thenReturn(true);
-        Mockito.when(payment.charge(Mockito.anyString(), Mockito.anyDouble())).thenReturn(paymentResponse);
+        Mockito.when(payment.charge(ApiKey, testValue)).thenReturn(paymentResponse);
         Mockito.when(databaseRepo.prepareStatement(Mockito.anyString())).thenThrow(new SQLException("Error statement"));
 
         assertThrows(IllegalArgumentException.class, () ->
-                processor.processPayment(200));
+                processor.processPayment(testValue));
     }
 
     @Test
     void whenResponseIsfalseDatabaseAndEmailShouldNotBeCalledAndReturnFalse() {
         Mockito.when(paymentResponse.isSuccess()).thenReturn(false);
-        Mockito.when(payment.charge(Mockito.anyString(), Mockito.anyDouble())).thenReturn(paymentResponse);
+        Mockito.when(payment.charge(ApiKey, testValue)).thenReturn(paymentResponse);
 
-        var result = processor.processPayment(200);
+        var result = processor.processPayment(testValue);
 
         Mockito.verify(emailService,
                         Mockito.times(0))
-                .sendPaymentConfirmation("user@example.com", 200);
+                .sendPaymentConfirmation("user@example.com", testValue);
         Mockito.verify(databaseRepo,
                         Mockito.times(0))
                 .executeUpdate(Mockito.any(PreparedStatement.class));
