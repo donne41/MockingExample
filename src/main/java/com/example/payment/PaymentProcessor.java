@@ -17,13 +17,6 @@ public class PaymentProcessor {
         this.emailService = emailService;
     }
 
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
 
     public boolean processPayment(double amount) {
         // Anropar extern betaltjänst direkt med statisk API-nyckel
